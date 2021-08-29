@@ -5,7 +5,7 @@ let { secret } = config;
 
 function authenticateJwtRequestToken() {
   return expressJwt({ secret, algorithms: ['HS256'] }).unless({
-    path: ['/home', '/users/login', '/users/register'],
+    path: ['/users/', '/home', '/users/login', '/users/register'],
   });
 }
 
