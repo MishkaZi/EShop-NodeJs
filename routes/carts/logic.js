@@ -1,92 +1,54 @@
-const ServerError = require('../../middlewares/error-handling/server-error');
-const ErrorType = require('../../middlewares/error-handling/error-type');
 const cache = require('../../cache');
-const usersDao = require('./dao');
+const cartsDao = require('./dao');
 
-const crypto = require('crypto');
-const jwt = require('jsonwebtoken');
-const config = require('../../config.json');
+const getCustomersCart = async (customerId) => {
+  const cart = await cartsDao.getCustomersCart(customerId);
 
-const RIGHT_SALT = 'kh432523vkjh52vj4';
-const LEFT_SALT = 'h23v4jh2v3jh42v';
-
-const login = async (user) => {
-  let userLoginData;
-
-  //Reloggin in case of refresh
-  if (user.id) {
-    userLoginData = await usersDao.reLogin(user.id);
-  } else {
-    validateUserCredentials(user);
-    user.password = crypto
-      .createHash('md5')
-      .update(LEFT_SALT + user.password + RIGHT_SALT)
-      .digest('hex');
-    userLoginData = await usersDao.login(user);
+  if (cart) {
+    cache.set('cartId', cart.id);
   }
 
-  let saltedUserName = LEFT_SALT + userLoginData.username + RIGHT_SALT;
-  const token = jwt.sign({ sub: saltedUserName }, config.secret);
-  cache.set(token, userLoginData);
-
-  let response = {
-    token,
-    userType: userLoginData.type,
-    userDetails: userLoginData,
-  };
-  return response;
+  return cart;
 };
 
-const firstStageRegister = async (user) => {
-  validateUserCredentials(user);
+const getCartItems = async () => {
+  const cartId = cache.get('cartId');
 
-  if (user.id === null || user.id === '') {
-    throw new ServerError(ErrorType.ID_REQUIRED);
+  if (cartId) {
+    return await cartsDao.getCartItems(cartId);
   }
-  if (user.passwordConfirm != user.password) {
-    throw new ServerError(ErrorType.PASSWORDS_DONT_MATCH);
-  }
-
-  await usersDao.isUserExist(user);
 };
 
-const secondStageRegister = async (user) => {
-  // Second step validations
-  if (
-    user.firstName === null ||
-    user.firstName === '' ||
-    user.firstName === undefined ||
-    user.lastName === null ||
-    user.lastName === '' ||
-    user.lastName === undefined ||
-    user.city === null ||
-    user.city === '' ||
-    user.city === undefined ||
-    user.street === null ||
-    user.street === '' ||
-    user.street === undefined
-  ) {
-    throw new ServerError(ErrorType.ALL_FIELDS_REQUIRED);
-  }
+const createCart = async (customerId, currentDate) => {
+  await cartsDao.createCart(customerId, currentDate);
+  const cart = await cartsDao.getCustomersCart(customerId);
 
-  user.password = crypto
-    .createHash('md5')
-    .update(LEFT_SALT + user.password + RIGHT_SALT)
-    .digest('hex');
-  await usersDao.register(user);
+  cache.set('cartId', cart.id);
+  return cart;
 };
 
-const validateUserCredentials = (user) => {
-  if (user.email === null || user.email === '') {
-    throw new ServerError(ErrorType.EMAIL_REQUIRED);
-  }
-  if (user.password === null || user.password === '') {
-    throw new ServerError(ErrorType.PASSWORD_REQUIRED);
-  }
+const addToCart = async (product, cartId) => {
+  return await cartsDao.addToCart(product, cartId);
+};
+
+const updateCart = async (product, cartId) => {
+  return await cartsDao.updateCart(product, cartId);
+};
+
+const deleteFromCart = async (productId, cartId) => {
+  return await cartsDao.deleteFromCart(productId, cartId);
+};
+
+const emptyCart = async (cartId) => {
+  await cartsDao.emptyCart(cartId);
 };
 
 module.exports = {
-  login,
-  secondStageRegister,
-  firstStageRegister,
+  getCustomersCart,
+  createCart,
+  addToCart,
+  updateCart,
+  deleteFromCart,
+  emptyCart,
+  getCartItems,
 };

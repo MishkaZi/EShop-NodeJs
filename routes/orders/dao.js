@@ -2,105 +2,63 @@ const connection = require('../../connection-wrapper');
 const ErrorType = require('../../middlewares/error-handling/error-type');
 const ServerError = require('../../middlewares/error-handling/server-error');
 
-const login = async (user) => {
+const getShippingDates = async () => {
   const sql = `
-    SELECT id, email, password, first_name AS 'firstName', last_name AS 'lastName', city, street, is_admin AS 'isAdmin' 
-    FROM users 
-    WHERE email = ? AND password = ?;
-    `;
-
-  const parameters = [user.email, user.password];
+  SELECT shipping_date AS 'shippingDate' 
+  FROM orders
+  GROUP BY shipping_date HAVING COUNT(*) >= 3`;
 
   try {
-    const usersLoginResult = await connection.executeWithParameters(
-      sql,
-      parameters
-    );
-    await userDoesntExist(usersLoginResult);
-    return usersLoginResult[0];
-  } catch (err) {
-    throw new ServerError(ErrorType.GENERAL_ERROR, JSON.stringify(user), err);
+    const busyShipDates = await connection.execute(sql);
+    return busyShipDates;
+  } catch (error) {
+    throw new ServerError(ErrorType.GENERAL_ERROR, sql, error);
   }
 };
 
-const reLogin = async (userId) => {
+const order = async (order, cartId, customerId) => {
   const sql = `
-    SELECT id, email, password, first_name AS 'firstName',  last_name AS 'lastName', city, street, is_admin AS 'isAdmin' 
-    FROM  users 
-    WHERE id = ?;
-    `;
+  INSERT 
+  INTO orders (cart_id, customer_id, final_price, devilery_city, shipping_street, shipping_date, order_date, credit_card) 
+  VALUES(?, ?, ?, ?, ?, ?, ?, ?)`;
 
-  try {
-    const usersLoginResult = await connection.executeWithParameters(
-      sql,
-      userId
-    );
-    await userDoesntExist(usersLoginResult);
-    return usersLoginResult[0];
-  } catch (err) {
-    throw new ServerError(ErrorType.GENERAL_ERROR, JSON.stringify(userId), err);
-  }
-};
+  const formattedOrderDate = order.orderDate.split('T')[0];
+  const formattedshippingDate = order.shippingDate.split('T')[0];
 
-const userDoesntExist = async (usersLoginResult) => {
-  if (usersLoginResult == null || usersLoginResult.length == 0) {
-    throw new ServerError(ErrorType.UNAUTHORIZED);
-  }
-};
-
-const isUserExist = async (user) => {
-  // Exists by email
-  const sqlEmailQuery = `SELECT * FROM users WHERE email = ?`;
-  const paramEmail = [user.email];
-
-  const email = await connection.executeWithParameters(
-    sqlEmailQuery,
-    paramEmail
-  );
-  if (email[0]) {
-    console.log(ErrorType.EMAIL_EXIST);
-    throw new ServerError(ErrorType.EMAIL_EXIST);
-  }
-
-  // Exists by id
-  const sqlIdQuery = `SELECT * FROM users WHERE id = ?`;
-  const paramId = [user.id];
-
-  const id = await connection.executeWithParameters(sqlIdQuery, paramId);
-  if (id[0]) {
-    console.log(ErrorType.ID_EXIST);
-
-    throw new ServerError(ErrorType.ID_EXIST);
-  }
-};
-
-const register = async (user) => {
-  const sql = `
-  INSERT INTO users (id, email, password, first_name, last_name, city, street) 
-  VALUES (?, ?, ?, ?, ?, ?, ?);
-  `;
-
-  const parameters = [
-    user.id,
-    user.email,
-    user.password,
-    user.firstName,
-    user.lastName,
-    user.city,
-    user.street,
+  const orderParameters = [
+    cartId,
+    customerId,
+    order.finalPrice,
+    order.shippingCity,
+    order.shippingStreet,
+    formattedshippingDate,
+    formattedOrderDate,
+    order.creditCard,
   ];
 
   try {
-    await isUserExist(user);
-    await connection.executeWithParameters(sql, parameters);
-  } catch (err) {
-    throw new ServerError(ErrorType.GENERAL_ERROR, sql, err);
+    await connection.executeWithParameters(sql, orderParameters);
+    await closeCart(cartId);
+  } catch (error) {
+    throw new ServerError(ErrorType.GENERAL_ERROR, orderSql, error);
+  }
+};
+
+const closeCart = async (cartId) => {
+  const sql = `
+  UPDATE carts 
+  SET status = 'close' 
+  WHERE (id = ?);
+  `;
+
+  try {
+    await connection.executeWithParameters(sql, cartId);
+  } catch (error) {
+    throw new ServerError(ErrorType.GENERAL_ERROR, sql, error);
   }
 };
 
 module.exports = {
-  login,
-  reLogin,
-  register,
-  isUserExist,
+  getShippingDates,
+  order,
 };

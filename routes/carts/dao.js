@@ -2,105 +2,127 @@ const connection = require('../../connection-wrapper');
 const ErrorType = require('../../middlewares/error-handling/error-type');
 const ServerError = require('../../middlewares/error-handling/server-error');
 
-const login = async (user) => {
+const getCustomersCart = async (customerId) => {
   const sql = `
-    SELECT id, email, password, first_name AS 'firstName', last_name AS 'lastName', city, street, is_admin AS 'isAdmin' 
-    FROM users 
-    WHERE email = ? AND password = ?;
-    `;
-
-  const parameters = [user.email, user.password];
-
-  try {
-    const usersLoginResult = await connection.executeWithParameters(
-      sql,
-      parameters
-    );
-    await userDoesntExist(usersLoginResult);
-    return usersLoginResult[0];
-  } catch (err) {
-    throw new ServerError(ErrorType.GENERAL_ERROR, JSON.stringify(user), err);
-  }
-};
-
-const reLogin = async (userId) => {
-  const sql = `
-    SELECT id, email, password, first_name AS 'firstName',  last_name AS 'lastName', city, street, is_admin AS 'isAdmin' 
-    FROM  users 
-    WHERE id = ?;
-    `;
-
-  try {
-    const usersLoginResult = await connection.executeWithParameters(
-      sql,
-      userId
-    );
-    await userDoesntExist(usersLoginResult);
-    return usersLoginResult[0];
-  } catch (err) {
-    throw new ServerError(ErrorType.GENERAL_ERROR, JSON.stringify(userId), err);
-  }
-};
-
-const userDoesntExist = async (usersLoginResult) => {
-  if (usersLoginResult == null || usersLoginResult.length == 0) {
-    throw new ServerError(ErrorType.UNAUTHORIZED);
-  }
-};
-
-const isUserExist = async (user) => {
-  // Exists by email
-  const sqlEmailQuery = `SELECT * FROM users WHERE email = ?`;
-  const paramEmail = [user.email];
-
-  const email = await connection.executeWithParameters(
-    sqlEmailQuery,
-    paramEmail
-  );
-  if (email[0]) {
-    console.log(ErrorType.EMAIL_EXIST);
-    throw new ServerError(ErrorType.EMAIL_EXIST);
-  }
-
-  // Exists by id
-  const sqlIdQuery = `SELECT * FROM users WHERE id = ?`;
-  const paramId = [user.id];
-
-  const id = await connection.executeWithParameters(sqlIdQuery, paramId);
-  if (id[0]) {
-    console.log(ErrorType.ID_EXIST);
-
-    throw new ServerError(ErrorType.ID_EXIST);
-  }
-};
-
-const register = async (user) => {
-  const sql = `
-  INSERT INTO users (id, email, password, first_name, last_name, city, street) 
-  VALUES (?, ?, ?, ?, ?, ?, ?);
+  SELECT id, date_created AS 'createDate', status 
+  FROM carts
+  WHERE customer_id = ?;
   `;
 
-  const parameters = [
-    user.id,
-    user.email,
-    user.password,
-    user.firstName,
-    user.lastName,
-    user.city,
-    user.street,
-  ];
+  try {
+    const userCarts = await connection.executeWithParameters(sql, customerId);
+
+    const mostRecentUserCart = userCarts[userCarts.length - 1];
+    return mostRecentUserCart;
+  } catch (error) {
+    throw new ServerError(ErrorType.GENERAL_ERROR, sql, error);
+  }
+};
+
+const createCart = async (customerId) => {
+  const sql = `
+  INSERT 
+  INTO carts (customer_id, date_created) 
+  VALUES(?, ?);
+  `;
+
+  const currentDate = new Date().toISOString().split('T')[0];
+  const parameters = [customerId, currentDate];
 
   try {
-    await isUserExist(user);
     await connection.executeWithParameters(sql, parameters);
-  } catch (err) {
-    throw new ServerError(ErrorType.GENERAL_ERROR, sql, err);
+    return getCustomersCart(customerId);
+  } catch (error) {
+    throw new ServerError(ErrorType.GENERAL_ERROR, sql, error);
+  }
+};
+
+const getCartItems = async (cartId) => {
+  const sql = `
+  SELECT ci.product_id AS 'id', p.product_name AS 'productName', ci.quantity, p.image, ci.total_price AS 'totalPrice' 
+  FROM cart_items ci
+  JOIN products p ON p.id = ci.product_id
+  WHERE cart_id = ?;
+  `;
+
+  try {
+    return await connection.executeWithParameters(sql, cartId);
+  } catch (error) {
+    throw new ServerError(ErrorType.GENERAL_ERROR, sql, error);
+  }
+};
+
+const addToCart = async (product, cartId) => {
+  const sql = `
+  INSERT 
+  INTO cart_items (cart_id, product_id, quantity, total_price) 
+  VALUES(?, ?, ?, ?);
+  `;
+
+  product.price = product.price * product.quantity;
+  const parameters = [cartId, product.id, product.quantity, product.price];
+
+  try {
+    await connection.executeWithParameters(sql, parameters);
+    return product;
+  } catch (error) {
+    throw new ServerError(ErrorType.GENERAL_ERROR, sql, error);
+  }
+};
+
+const updateCart = async (product, cartId) => {
+  const sql = `
+  UPDATE cart_items 
+  SET quantity = ?, total_price = ?
+  WHERE cart_id = ? AND product_id = ?;
+  `;
+
+  product.price = product.price * product.amount;
+  const parameters = [product.amount, product.price, cartId, product.id];
+
+  try {
+    await connection.executeWithParameters(sql, parameters);
+    return product;
+  } catch (error) {
+    throw new ServerError(ErrorType.GENERAL_ERROR, sql, error);
+  }
+};
+
+const deleteFromCart = async (productId, cartId) => {
+  const sql = `
+  Delete 
+  FROM cart_items 
+  WHERE cart_id = ? AND product_id = ?`;
+  const parameters = [cartId, productId];
+
+  try {
+    await connection.executeWithParameters(sql, parameters);
+    return getCartItems(cartId);
+  } catch (error) {
+    throw new ServerError(ErrorType.GENERAL_ERROR, sql, error);
+  }
+};
+
+const emptyCart = async (cartId) => {
+  const sql = `
+  Delete 
+  FROM cart_items 
+  WHERE cart_id = ?;
+  `;
+
+  try {
+    await connection.executeWithParameters(sql, cartId);
+  } catch (error) {
+    throw new ServerError(ErrorType.GENERAL_ERROR, sql, error);
   }
 };
 
 module.exports = {
-  login,
-  reLogin,
-  register,
-  isUserExist,
+  getCustomersCart,
+  getCartItems,
+  createCart,
+  addToCart,
+  updateCart,
+  deleteFromCart,
+  emptyCart,
 };

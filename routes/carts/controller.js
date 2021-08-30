@@ -2,65 +2,97 @@ const express = require('express');
 const router = express.Router();
 
 const cache = require('../../cache');
-const usersLogic = require('./logic');
+const cartsLogic = require('./logic');
 
-// Login
-router.post('/login', async (req, res, next) => {
-  let userLoginDetails = req.body;
+router.get("/", async (req, res, next) => {
   try {
-    let successfullLoginData = await usersLogic.login(userLoginDetails);
-    res.json(successfullLoginData);
-  } catch (err) {
-    return next(err);
+      const customerId = cache.extractUserDataFromCache(req).id;
+      
+      const customerCart = await cartsLogic.getCustomersCart(customerId);
+      res.json(customerCart);
+  }
+  catch (err) {
+      return next(err);
   }
 });
 
-//First stage of registration
-router.post('/', async (req, res, next) => {
-  let userDetails = req.body;
+router.post("/", async (req, res, next) => {
+  const currentDate = req.body.currentDate;
 
   try {
-    await usersLogic.firstStageRegister(userDetails);
-    res.json();
-  } catch (err) {
-    return next(err);
+      const customerId = cache.extractUserDataFromCache(req).id;
+      const customerCart = await cartsLogic.createCart(customerId, currentDate);
+
+      res.json(customerCart);
+  }
+  catch (err) {
+      return next(err);
   }
 });
 
-//Second stage of registration
-router.post('/register', async (req, res, next) => {
-  let newUserDetails = req.body;
-
+//Cart items
+router.get("/items", async (req, res, next) => {
   try {
-    await usersLogic.secondStageRegister(newUserDetails);
-    res.json();
-  } catch (err) {
-    return next(err);
+      const cartItems = await cartsLogic.getCartItems();
+      res.json(cartItems);
+  }
+  catch (err) {
+      return next(err);
   }
 });
 
-// Logout
-router.post('/logout', async (req, res, next) => {
-  let token = req.body;
+// Add item to cart
+router.post("/items", async (req, res, next) => {
+  const product = req.body;
+  const cartId = cache.get("cartId");
 
   try {
-    cache.remove(token);
-    res.json();
-  } catch (err) {
-    return next(err);
+      const newCartItem = await cartsLogic.addToCart(product, cartId);
+      res.json(newCartItem);
+  }
+  catch (err) {
+      return next(err);
   }
 });
 
-// Get address
-router.get('/address', async (req, res, next) => {
-  try {
-    let street = cache.extractUserDataFromCache(req).street;
-    let city = cache.extractUserDataFromCache(req).city;
+// Update cart
+router.put("/items", async (req, res, next) => {
+  const product = req.body;
+  const cartId = cache.get("cartId");
 
-    let userAddress = { city, street };
-    res.json(userAddress);
-  } catch (err) {
-    return next(err);
+  try {
+      const updatedCartItem = await cartsLogic.updateCart(product, cartId);
+      res.json(updatedCartItem);
+  }
+  catch (err) {
+      return next(err);
+  }
+});
+
+// Remove item from cart
+router.delete("/items/:id", async (req, res, next) => {
+  const productId = req.params.id;
+  const cartId = cache.get("cartId");
+
+  try {
+      await cartsLogic.deleteFromCart(productId, cartId);
+      res.json();
+  }
+  catch (err) {
+      return next(err);
+  }
+});
+
+// Delete items from cart
+router.delete("/items", async (req, res, next) => {
+  const cartId = cache.get("cartId");
+
+  try {
+      await cartsLogic.emptyCart(cartId);
+      res.json();
+  }
+  catch (err) {
+      return next(err);
   }
 });
 

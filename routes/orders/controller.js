@@ -1,67 +1,33 @@
 const express = require('express');
 const router = express.Router();
 
-const cache = require('../../cache');
-const usersLogic = require('./logic');
+const ordersLogic = require('./logic');
 
-// Login
-router.post('/login', async (req, res, next) => {
-  let userLoginDetails = req.body;
+//Get shipping dates
+router.get("/", async (req, res, next) => {
   try {
-    let successfullLoginData = await usersLogic.login(userLoginDetails);
-    res.json(successfullLoginData);
-  } catch (err) {
-    return next(err);
+      const allShipDates = await ordersLogic.getShippingDates();
+      res.json(allShipDates);
+  }
+  catch (err) {
+      return next(err);
   }
 });
 
-//First stage of registration
-router.post('/', async (req, res, next) => {
-  let userDetails = req.body;
+//Order
+router.post("/", async (req, res, next) => {    
+  const orderDetails = req.body;
+  const cartId = cache.get("cartId");
+  const customerId = cache.extractUserDataFromCache(req).id;
 
   try {
-    await usersLogic.firstStageRegister(userDetails);
-    res.json();
+      await ordersLogic.order(orderDetails, cartId, customerId);
+      res.json();
+
   } catch (err) {
-    return next(err);
+      return next(err);
   }
 });
 
-//Second stage of registration
-router.post('/register', async (req, res, next) => {
-  let newUserDetails = req.body;
-
-  try {
-    await usersLogic.secondStageRegister(newUserDetails);
-    res.json();
-  } catch (err) {
-    return next(err);
-  }
-});
-
-// Logout
-router.post('/logout', async (req, res, next) => {
-  let token = req.body;
-
-  try {
-    cache.remove(token);
-    res.json();
-  } catch (err) {
-    return next(err);
-  }
-});
-
-// Get address
-router.get('/address', async (req, res, next) => {
-  try {
-    let street = cache.extractUserDataFromCache(req).street;
-    let city = cache.extractUserDataFromCache(req).city;
-
-    let userAddress = { city, street };
-    res.json(userAddress);
-  } catch (err) {
-    return next(err);
-  }
-});
 
 module.exports = router;
