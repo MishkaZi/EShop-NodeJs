@@ -4,16 +4,26 @@ const server = express();
 const PORT = process.env.port || 3001;
 
 const errorHandler = require('./middlewares/error-handling/error-handler');
-const loginFilter = require('./middlewares/login-filter');
+// const loginFilter = require('./middlewares/login-filter');
 
 const usersController = require('./routes/users/controller');
+const categoriesController = require('./routes/categories/controller');
+const shopController = require('./routes/shop/controller');
+const productsController = require('./routes/products/controller');
+const cartsController = require('./routes/carts/controller');
+const ordersController = require('./routes/orders/controller');
 
 server.use(express.json());
 server.use(express.static('public'));
 
 server.use(cors({ origin: 'http://localhost:4200' }));
-server.use(loginFilter());
+// server.use(loginFilter());
+server.use('/shop', shopController);
 server.use('/users', usersController);
+server.use('/categories', categoriesController);
+server.use('/products', productsController);
+server.use('/carts', cartsController);
+server.use('/orders', ordersController);
 
 server.use(errorHandler);
 

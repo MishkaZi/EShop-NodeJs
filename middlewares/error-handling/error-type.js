@@ -73,23 +73,8 @@ let ErrorType = {
     isShowStackTrace: false,
   },
 
-  //Input checks
-  NAME_TOO_LONG: {
-    id: 10,
-    httpCode: 640,
-    message: "Product's name is longer than 60 charts",
-    isShowStackTrace: false,
-  },
-
-  IMAGEURL_TOO_LONG: {
-    id: 11,
-    httpCode: 641,
-    message: 'Image url is too long',
-    isShowStackTrace: false,
-  },
-
   INVALID_CREDITCARD: {
-    id: 12,
+    id: 10,
     httpCode: 642,
     message: 'Invalid credit card number, last 4 digits only',
     isShowStackTrace: false,
