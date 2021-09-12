@@ -1,8 +1,8 @@
 const cache = require('../../cache');
 const cartsDao = require('./dao');
 
-const getCustomersCart = async (customerId) => {
-  const cart = await cartsDao.getCustomersCart(customerId);
+const getCustomersCart = async (userId) => {
+  const cart = await cartsDao.getCustomersCart(userId);
 
   if (cart) {
     cache.set('cartId', cart.id);
@@ -19,9 +19,9 @@ const getCartItems = async () => {
   }
 };
 
-const createCart = async (customerId, currentDate) => {
-  await cartsDao.createCart(customerId, currentDate);
-  const cart = await cartsDao.getCustomersCart(customerId);
+const createCart = async (userId, currentDate) => {
+  await cartsDao.createCart(userId, currentDate);
+  const cart = await cartsDao.getCustomersCart(userId);
 
   cache.set('cartId', cart.id);
   return cart;

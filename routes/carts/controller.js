@@ -6,9 +6,9 @@ const cartsLogic = require('./logic');
 
 router.get("/", async (req, res, next) => {
   try {
-      const customerId = cache.extractUserDataFromCache(req).id;
+      const userId = cache.extractUserDataFromCache(req).id;
       
-      const customerCart = await cartsLogic.getCustomersCart(customerId);
+      const customerCart = await cartsLogic.getCustomersCart(userId);
       res.json(customerCart);
   }
   catch (err) {
@@ -20,8 +20,8 @@ router.post("/", async (req, res, next) => {
   const currentDate = req.body.currentDate;
 
   try {
-      const customerId = cache.extractUserDataFromCache(req).id;
-      const customerCart = await cartsLogic.createCart(customerId, currentDate);
+      const userId = cache.extractUserDataFromCache(req).id;
+      const customerCart = await cartsLogic.createCart(userId, currentDate);
 
       res.json(customerCart);
   }

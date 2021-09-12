@@ -2,15 +2,15 @@ const connection = require('../../connection-wrapper');
 const ErrorType = require('../../middlewares/error-handling/error-type');
 const ServerError = require('../../middlewares/error-handling/server-error');
 
-const getCustomersCart = async (customerId) => {
+const getCustomersCart = async (userId) => {
   const sql = `
   SELECT id, date_created AS 'createDate', status 
   FROM carts
-  WHERE customer_id = ?;
+  WHERE user_id = ?;
   `;
 
   try {
-    const userCarts = await connection.executeWithParameters(sql, customerId);
+    const userCarts = await connection.executeWithParameters(sql, userId);
 
     const mostRecentUserCart = userCarts[userCarts.length - 1];
     return mostRecentUserCart;
@@ -19,19 +19,19 @@ const getCustomersCart = async (customerId) => {
   }
 };
 
-const createCart = async (customerId) => {
+const createCart = async (userId) => {
   const sql = `
   INSERT 
-  INTO carts (customer_id, date_created) 
+  INTO carts (user_id, date_created) 
   VALUES(?, ?);
   `;
 
   const currentDate = new Date().toISOString().split('T')[0];
-  const parameters = [customerId, currentDate];
+  const parameters = [userId, currentDate];
 
   try {
     await connection.executeWithParameters(sql, parameters);
-    return getCustomersCart(customerId);
+    return getCustomersCart(userId);
   } catch (error) {
     throw new ServerError(ErrorType.GENERAL_ERROR, sql, error);
   }
@@ -39,7 +39,7 @@ const createCart = async (customerId) => {
 
 const getCartItems = async (cartId) => {
   const sql = `
-  SELECT ci.product_id AS 'id', p.product_name AS 'productName', ci.quantity, p.image, ci.total_price AS 'totalPrice' 
+  SELECT ci.product_id AS 'id', p.product_name AS 'productName', ci.quantity AS amount, p.image, ci.total_price AS 'totalPrice' 
   FROM cart_items ci
   JOIN products p ON p.id = ci.product_id
   WHERE cart_id = ?;
@@ -59,8 +59,12 @@ const addToCart = async (product, cartId) => {
   VALUES(?, ?, ?, ?);
   `;
 
-  product.price = product.price * product.quantity;
-  const parameters = [cartId, product.id, product.quantity, product.price];
+  const parameters = [
+    cartId,
+    product.productId,
+    product.amount,
+    product.totalPrice,
+  ];
 
   try {
     await connection.executeWithParameters(sql, parameters);
@@ -78,7 +82,12 @@ const updateCart = async (product, cartId) => {
   `;
 
   product.price = product.price * product.amount;
-  const parameters = [product.amount, product.price, cartId, product.id];
+  const parameters = [
+    product.amount,
+    product.totalPrice,
+    cartId,
+    product.productId,
+  ];
 
   try {
     await connection.executeWithParameters(sql, parameters);
