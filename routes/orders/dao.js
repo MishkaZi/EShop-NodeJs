@@ -10,6 +10,7 @@ const getShippingDates = async () => {
 
   try {
     const busyShipDates = await connection.execute(sql);
+    console.log(busyShipDates);
     return busyShipDates;
   } catch (error) {
     throw new ServerError(ErrorType.GENERAL_ERROR, sql, error);
