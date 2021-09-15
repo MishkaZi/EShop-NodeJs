@@ -19,8 +19,8 @@ const getShippingDates = async () => {
 const order = async (order, cartId, customerId) => {
   const sql = `
   INSERT 
-  INTO orders (cart_id, customer_id, final_price, devilery_city, shipping_street, shipping_date, order_date, credit_card) 
-  VALUES(?, ?, ?, ?, ?, ?, ?, ?)`;
+  INTO orders (cart_id, customer_id, final_price, delivery_city, delivery_street, shipping_date, order_date, credit_card) 
+  VALUES(?, ?, ?, ?, ?, ?, ?, ?);`;
 
   const formattedOrderDate = order.orderDate.split('T')[0];
   const formattedshippingDate = order.shippingDate.split('T')[0];
@@ -40,7 +40,7 @@ const order = async (order, cartId, customerId) => {
     await connection.executeWithParameters(sql, orderParameters);
     await closeCart(cartId);
   } catch (error) {
-    throw new ServerError(ErrorType.GENERAL_ERROR, orderSql, error);
+    throw new ServerError(ErrorType.GENERAL_ERROR, sql, error);
   }
 };
 

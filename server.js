@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const server = express();
-const PORT = process.env.port || 3001;
+const PORT = process.env.port;
 
 const errorHandler = require('./middlewares/error-handling/error-handler');
 // const loginFilter = require('./middlewares/login-filter');
@@ -16,7 +16,7 @@ const ordersController = require('./routes/orders/controller');
 server.use(express.json());
 server.use(express.static('public'));
 
-server.use(cors({ origin: 'http://localhost:4200' }));
+server.use(cors());
 // server.use(loginFilter());
 server.use('/shop', shopController);
 server.use('/users', usersController);
@@ -27,6 +27,6 @@ server.use('/orders', ordersController);
 
 server.use(errorHandler);
 
-server.listen(process.env.PORT || PORT, () => {
+server.listen(process.env.PORT, () => {
   console.log(`Running on: ${PORT}`);
 });

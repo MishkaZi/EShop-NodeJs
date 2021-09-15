@@ -8,15 +8,15 @@ const getShippingDates = async () => {
 
 const order = async (orderDetails, cartId, customerId) => {
   if (
-    orderDetails.deliveryCity == null ||
-    orderDetails.deliveryCity == '' ||
-    orderDetails.deliveryCity == undefined ||
-    orderDetails.deliveryStreet == null ||
-    orderDetails.deliveryStreet == '' ||
-    orderDetails.deliveryStreet == undefined ||
+    orderDetails.shippingCity == null ||
+    orderDetails.shippingCity == '' ||
+    orderDetails.shippingCity == undefined ||
+    orderDetails.shippingStreet == null ||
+    orderDetails.shippingStreet == '' ||
+    orderDetails.shippingStreet == undefined ||
     orderDetails.creditCard == null ||
     orderDetails.creditCard == undefined ||
-    orderDetails.shippingDate == null||
+    orderDetails.shippingDate == null ||
     orderDetails.shippingDate == undefined
   ) {
     throw new ServerError(ErrorType.ALL_FIELDS_REQUIRED);
