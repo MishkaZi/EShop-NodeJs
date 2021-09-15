@@ -13,7 +13,7 @@ function remove(key) {
 }
 
 function extractUserDataFromCache(request) {
-  let authorizationString = request.headers['authorization'];
+  let authorizationString = request.headers['authorization' ];
   let token = authorizationString.substring('Bearer '.length);
   let userData = usersCache.get(token);
   return userData;
