@@ -4,9 +4,9 @@ const ServerError = require('../../middlewares/error-handling/server-error');
 
 const shop = async () => {
   const sql = `
-  SELECT COUNT(id) AS 'info'
+  SELECT COUNT(id) AS 'products'
   FROM products
-  UNION SELECT COUNT(id) 
+  UNION SELECT COUNT(id) AS 'orders'
   FROM orders;
   `;
 
