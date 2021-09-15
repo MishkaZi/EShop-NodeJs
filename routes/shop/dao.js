@@ -6,7 +6,7 @@ const shop = async () => {
   const sql = `
   SELECT COUNT(id) AS 'products'
   FROM products
-  UNION SELECT COUNT(id) AS 'orders'
+  UNION SELECT COUNT * AS 'orders'
   FROM orders;
   `;
 
