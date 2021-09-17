@@ -1,6 +1,6 @@
 class ServerError extends Error {
   constructor(errorType, message, innerError) {
-    super(message); // log print
+    super(message);
     this.errorType = errorType;
     this.innerError = innerError;
   }
