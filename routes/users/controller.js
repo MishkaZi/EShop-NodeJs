@@ -24,7 +24,7 @@ router.get("/", async (req, res, next) => {
 
 
 //First stage of registration
-router.post('/', async (req, res, next) => {
+router.post('/register', async (req, res, next) => {
     let userDetails = req.body;
     console.log(userDetails);
     try {
@@ -36,7 +36,7 @@ router.post('/', async (req, res, next) => {
 });
 
 //Second stage of registration
-router.post('/register', async (req, res, next) => {
+router.post('/register2', async (req, res, next) => {
     let newUserDetails = req.body;
 
     try {
