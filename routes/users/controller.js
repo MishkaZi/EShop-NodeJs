@@ -12,7 +12,7 @@ router.post('/login', async (req, res, next) => {
         res.json(successfullLoginData);
     } catch (err) {
         console.log(err);
-        return next(err.innerError);
+        return next(err);
     }
 });
 
@@ -31,7 +31,7 @@ router.post('/', async (req, res, next) => {
         await usersLogic.firstStageRegister(userDetails);
         res.json();
     } catch (err) {
-        return next(err.innerError);
+        return next(err);
     }
 });
 
@@ -43,7 +43,7 @@ router.post('/register', async (req, res, next) => {
         await usersLogic.secondStageRegister(newUserDetails);
         res.json();
     } catch (err) {
-        return next(err.innerError);
+        return next(err);
     }
 });
 
@@ -55,7 +55,7 @@ router.post('/logout', async (req, res, next) => {
         cache.remove(token);
         res.json();
     } catch (err) {
-        return next(err.innerError);
+        return next(err);
     }
 });
 
@@ -68,7 +68,7 @@ router.get('/address', async (req, res, next) => {
         let userAddress = { city, street };
         res.json(userAddress);
     } catch (err) {
-        return next(err.innerError);
+        return next(err);
     }
 });
 
