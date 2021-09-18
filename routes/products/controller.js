@@ -16,6 +16,7 @@ router.get('/', async (req, res, next) => {
 
 router.post('/', uploadFile, async (req, res, next) => {
   const newProductDetails = req.body;
+  console.log(newProductDetails);
 
   try {
     const newProduct = await productsLogic.addProduct(newProductDetails);
