@@ -31,7 +31,7 @@ router.post('/register', async (req, res, next) => {
         await usersLogic.firstStageRegister(userDetails);
         res.json();
     } catch (err) {
-        return next(err.innerError);
+        return next(err);
     }
 });
 
@@ -43,7 +43,7 @@ router.post('/register2', async (req, res, next) => {
         await usersLogic.secondStageRegister(newUserDetails);
         res.json();
     } catch (err) {
-        return next(err.innerError);
+        return next(err);
     }
 });
 
