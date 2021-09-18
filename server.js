@@ -27,10 +27,6 @@ server.use('/orders', ordersController);
 
 server.use(errorHandler);
 
-// server.listen(process.env.PORT, () => {
-//   console.log(`Running on: ${PORT}`);
-// });
-
-server.listen(4000, () => {
-  console.log(`Running on: 4000`);
+server.listen(process.env.PORT, () => {
+  console.log(`Running on: ${PORT}`);
 });
