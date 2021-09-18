@@ -17,7 +17,7 @@ server.use(express.json());
 server.use(express.static('public'));
 
 server.use(cors());
-app.use("/uploads",express.static("./uploads"))
+server.use('/uploads', express.static('./uploads'));
 
 server.use(loginFilter());
 server.use('/shop', shopController);
