@@ -17,6 +17,8 @@ server.use(express.json());
 server.use(express.static('public'));
 
 server.use(cors());
+
+server.use(fileUpload())
 server.use('/uploads', express.static('./uploads'));
 
 server.use(loginFilter());

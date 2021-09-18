@@ -79,6 +79,13 @@ let ErrorType = {
     message: 'Invalid credit card number, last 4 digits only',
     isShowStackTrace: false,
   },
+
+  NO_FILE: {
+    id: 11,
+    httpCode: 650,
+    message: 'No image file provided',
+    isShowStackTrace: false,
+  },
 };
 
 module.exports = ErrorType;
