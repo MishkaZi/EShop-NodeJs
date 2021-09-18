@@ -4,7 +4,7 @@ const server = express();
 const PORT = process.env.port;
 
 const errorHandler = require('./middlewares/error-handling/error-handler');
-// const loginFilter = require('./middlewares/login-filter');
+const loginFilter = require('./middlewares/login-filter');
 
 const usersController = require('./routes/users/controller');
 const categoriesController = require('./routes/categories/controller');
@@ -17,7 +17,9 @@ server.use(express.json());
 server.use(express.static('public'));
 
 server.use(cors());
-// server.use(loginFilter());
+app.use("/uploads",express.static("./uploads"))
+
+server.use(loginFilter());
 server.use('/shop', shopController);
 server.use('/users', usersController);
 server.use('/categories', categoriesController);
