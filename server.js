@@ -5,6 +5,7 @@ const PORT = process.env.port;
 
 const errorHandler = require('./middlewares/error-handling/error-handler');
 const loginFilter = require('./middlewares/login-filter');
+const fileUpload = require('./middlewares/uploadFile');
 
 const usersController = require('./routes/users/controller');
 const categoriesController = require('./routes/categories/controller');
@@ -18,7 +19,7 @@ server.use(express.static('public'));
 
 server.use(cors());
 
-server.use(fileUpload())
+server.use(fileUpload());
 server.use('/uploads', express.static('./uploads'));
 
 server.use(loginFilter());
