@@ -5,7 +5,7 @@ const PORT = process.env.port;
 
 const errorHandler = require('./middlewares/error-handling/error-handler');
 const loginFilter = require('./middlewares/login-filter');
-const fileUpload = require('./middlewares/uploadFile');
+const fileUpload = require('express-fileupload');
 
 const usersController = require('./routes/users/controller');
 const categoriesController = require('./routes/categories/controller');
