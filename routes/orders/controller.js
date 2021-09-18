@@ -10,8 +10,8 @@ router.get("/", async (req, res, next) => {
     const allShipDates = await ordersLogic.getShippingDates();
     res.json(allShipDates);
   }
-  catch (err) {
-    return next(err);
+  catch (error) {
+    return next(error);
   }
 });
 
@@ -25,8 +25,8 @@ router.post("/", async (req, res, next) => {
     await ordersLogic.order(orderDetails, cartId, customerId);
     res.json();
 
-  } catch (err) {
-    return next(err);
+  } catch (error) {
+    return next(error);
   }
 });
 

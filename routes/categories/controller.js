@@ -9,8 +9,8 @@ router.get("/", async (req, res, next) => {
       const allCategories = await categoriesLogic.getAllCategories();
       res.json(allCategories);
   }
-  catch (err) {
-      return next(err);
+  catch (error) {
+      return next(error);
   }
 });
 
@@ -22,8 +22,8 @@ router.get("/:id", async (req, res, next) => {
       const products = await categoriesLogic.getCategoryProducts(cartId, categoryId);
       res.json(products);
   }
-  catch (err) {
-      return next(err);
+  catch (error) {
+      return next(error);
   }
 });
 

@@ -5,20 +5,20 @@ const cache = require('../../cache');
 const usersLogic = require('./logic');
 
 // Login
-router.post('/login', async (req, res, next) => {
+router.post('/', async (req, res, next) => {
     let userLoginDetails = req.body;
     try {
         let successfullLoginData = await usersLogic.login(userLoginDetails);
         res.json(successfullLoginData);
-    } catch (err) {
-        console.log(err);
-        return next(err.innerError);
+    } catch (error) {
+        return next(error.innerError);
     }
 });
 
 // Get users data
 router.get("/", async (req, res, next) => {
     const user = cache.extractUserDataFromCache(req);
+    console.log(user);
     res.json(user);
 });
 
@@ -26,12 +26,11 @@ router.get("/", async (req, res, next) => {
 //First stage of registration
 router.post('/register', async (req, res, next) => {
     let userDetails = req.body;
-    console.log(userDetails);
     try {
         await usersLogic.firstStageRegister(userDetails);
         res.json();
-    } catch (err) {
-        return next(err);
+    } catch (error) {
+        return next(error);
     }
 });
 
@@ -42,8 +41,8 @@ router.post('/register2', async (req, res, next) => {
     try {
         await usersLogic.secondStageRegister(newUserDetails);
         res.json();
-    } catch (err) {
-        return next(err);
+    } catch (error) {
+        return next(error);
     }
 });
 
@@ -54,24 +53,10 @@ router.post('/logout', async (req, res, next) => {
     try {
         cache.remove(token);
         res.json();
-    } catch (err) {
-        return next(err.innerError);
+    } catch (error) {
+        return next(error.innerError);
     }
 });
-
-// Get address
-router.get('/address', async (req, res, next) => {
-    try {
-        let street = cache.extractUserDataFromCache(req).street;
-        let city = cache.extractUserDataFromCache(req).city;
-
-        let userAddress = { city, street };
-        res.json(userAddress);
-    } catch (err) {
-        return next(err.innerError);
-    }
-});
-
 
 
 module.exports = router;

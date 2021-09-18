@@ -20,7 +20,6 @@ router.post("/", async(req, res, next) => {
         const newProduct = await productsLogic.addProduct(newProductDetails);
         res.json(newProduct);
     } catch (error) {
-        console.log(error);
         return next(error);
     }
 });

@@ -19,8 +19,8 @@ const login = async(user) => {
 
         await userDoesntExist(usersLoginResult);
         return usersLoginResult[0];
-    } catch (err) {
-        throw new ServerError(ErrorType.GENERAL_ERROR, JSON.stringify(user), err);
+    } catch (error) {
+        throw new ServerError(ErrorType.GENERAL_ERROR, JSON.stringify(user), error);
     }
 };
 
@@ -38,8 +38,8 @@ const reLogin = async(userId) => {
         );
         await userDoesntExist(usersLoginResult);
         return usersLoginResult[0];
-    } catch (err) {
-        throw new ServerError(ErrorType.GENERAL_ERROR, JSON.stringify(userId), err);
+    } catch (error) {
+        throw new ServerError(ErrorType.GENERAL_ERROR, JSON.stringify(userId), error);
     }
 };
 
@@ -92,8 +92,8 @@ const register = async(user) => {
     try {
         await isUserExist(user);
         await connection.executeWithParameters(sql, parameters);
-    } catch (err) {
-        throw new ServerError(ErrorType.GENERAL_ERROR, sql, err);
+    } catch (error) {
+        throw new ServerError(ErrorType.GENERAL_ERROR, sql, error);
     }
 };
 

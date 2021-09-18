@@ -12,8 +12,8 @@ const shop = async () => {
 
   try {
     return await connection.execute(sql);
-  } catch (err) {
-    throw new ServerError(ErrorType.GENERAL_ERROR, sql, err);
+  } catch (error) {
+    throw new ServerError(ErrorType.GENERAL_ERROR, sql, error);
   }
 };
 

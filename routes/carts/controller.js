@@ -11,8 +11,8 @@ router.get("/", async (req, res, next) => {
       const customerCart = await cartsLogic.getCustomersCart(userId);
       res.json(customerCart);
   }
-  catch (err) {
-      return next(err);
+  catch (error) {
+      return next(error);
   }
 });
 
@@ -25,8 +25,8 @@ router.post("/", async (req, res, next) => {
 
       res.json(customerCart);
   }
-  catch (err) {
-      return next(err);
+  catch (error) {
+      return next(error);
   }
 });
 
@@ -36,22 +36,23 @@ router.get("/items", async (req, res, next) => {
       const cartItems = await cartsLogic.getCartItems();
       res.json(cartItems);
   }
-  catch (err) {
-      return next(err);
+  catch (error) {
+      return next(error);
   }
 });
 
 // Add item to cart
 router.post("/items", async (req, res, next) => {
   const product = req.body;
-  const cartId = cache.get("cartId");
+  // const cartId = cache.get("cartId");
+  const cartId = 4;
 
   try {
       const newCartItem = await cartsLogic.addToCart(product, cartId);
       res.json(newCartItem);
   }
-  catch (err) {
-      return next(err);
+  catch (error) {
+      return next(error);
   }
 });
 
@@ -64,8 +65,8 @@ router.put("/items", async (req, res, next) => {
       const updatedCartItem = await cartsLogic.updateCart(product, cartId);
       res.json(updatedCartItem);
   }
-  catch (err) {
-      return next(err);
+  catch (error) {
+      return next(error);
   }
 });
 
@@ -78,8 +79,8 @@ router.delete("/items/:id", async (req, res, next) => {
       await cartsLogic.deleteFromCart(productId, cartId);
       res.json();
   }
-  catch (err) {
-      return next(err);
+  catch (error) {
+      return next(error);
   }
 });
 
@@ -91,8 +92,8 @@ router.delete("/items", async (req, res, next) => {
       await cartsLogic.emptyCart(cartId);
       res.json();
   }
-  catch (err) {
-      return next(err);
+  catch (error) {
+      return next(error);
   }
 });
 

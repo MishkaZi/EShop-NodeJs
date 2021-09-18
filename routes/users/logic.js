@@ -29,12 +29,12 @@ const login = async(user) => {
     const token = jwt.sign({ sub: saltedUserName }, config.secret);
     cache.set(token, userLoginData);
 
-    let response = {
+    let res = {
         token,
         isAdmin: userLoginData.isAdmin,
         userDetails: userLoginData,
     };
-    return response;
+    return res;
 };
 
 const firstStageRegister = async(user) => {
@@ -43,7 +43,6 @@ const firstStageRegister = async(user) => {
         throw new ServerError(ErrorType.ID_REQUIRED);
     }
     if (user.confirmPassword !== user.password) {
-        console.log(user.confirmPassword, user.password);
         throw new ServerError(ErrorType.PASSWORDS_DONT_MATCH);
     }
 
